@@ -1,6 +1,6 @@
 {
   "name": "miami-vice",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "cute & powerful ndjson log formatter for pino inspired by pino-colada",
   "author": "Kevin Wooten",
   "license": "MIT",
