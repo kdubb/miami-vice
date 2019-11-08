@@ -2,7 +2,6 @@ const prettyBytes = require('prettier-bytes');
 const jsonParse = require('fast-json-parse');
 const prettyMs = require('pretty-ms');
 const padLeft = require('pad-left');
-const split = require('split2');
 const chalk = require('chalk');
 const flat = require('flat');
 const yaml = require('js-yaml');
@@ -29,7 +28,32 @@ function isWideEmoji(character) {
 module.exports = MiamiVice;
 
 function MiamiVice() {
-    return split(parse);
+    return parse;
+
+    function parse(lineOrRecord) {
+
+        function unhandled() {
+            return lineOrRecord + nl
+        }
+
+        let record;
+        if (typeof lineOrRecord === 'string') {
+            let obj = jsonParse(lineOrRecord);
+            if (!obj.value || obj.err) return unhandled();
+            record = obj.value;
+        }
+        else if (typeof lineOrRecord === 'object' && lineOrRecord['v']) {
+            record = lineOrRecord;
+        }
+        else {
+            return unhandled();
+        }
+
+        if (!record.level) return unhandled();
+        if (typeof record.level === 'number') convertLogNumber(record);
+
+        return output(record) + nl
+    }
 
     function extract(obj, ...props) {
         let val = undefined;
@@ -38,17 +62,6 @@ function MiamiVice() {
             delete obj[prop];
         }
         return val;
-    }
-
-    function parse(line) {
-        let obj = jsonParse(line);
-        if (!obj.value || obj.err) return line + nl;
-        obj = obj.value;
-
-        if (!obj.level) return line + nl;
-        if (typeof obj.level === 'number') convertLogNumber(obj);
-
-        return output(obj) + nl
     }
 
     function convertLogNumber(obj) {

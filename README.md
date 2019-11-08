@@ -10,11 +10,24 @@ For those of you wondering... a Miami Vice is half Piña Colada and half Strawbe
 ![miami-vice](./miami-vice.png)
 
 # Usage
+
+### Pipe Output (recommended)
 Pipe a server that uses pino into miami-vice for logging.
 
 ```bash
 node server.js | miami-vice
 ```
+
+### In Process (as a [prettifier](http://getpino.io/#/docs/pretty?id=api-example))
+
+ ```javascript
+const pino = require('pino');
+const logger = pino({
+    prettyPrint: true,
+    prettifier: require('miami-vice')
+});
+```
+
 
 ## miami-vice
 After parsing input from `server.js`, miami-vice returns a stream and pipes it
