@@ -1,18 +1,19 @@
 {
   "name": "miami-vice",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "cute & powerful ndjson log formatter for pino inspired by pino-colada",
-  "main": "index.js",
-  "bin": {
-    "miami-vice": "./bin.js"
-  },
+  "author": "Kevin Wooten",
+  "license": "MIT",
+  "repository": "kdubb/miami-vice",
   "keywords": [
     "pino",
     "ndjson",
     "pretty-printer"
   ],
-  "author": "Kevin Wooten",
-  "license": "MIT",
+  "main": "index.js",
+  "bin": {
+    "miami-vice": "./bin.js"
+  },
   "dependencies": {
     "prettier-bytes": "^1.0.4",
     "fast-json-parse": "^1.0.3",
