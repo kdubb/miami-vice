@@ -1,7 +1,7 @@
 {
   "name": "miami-vice",
-  "version": "1.0.0",
-  "description": "cute & powerful ndjson log formatter for pino",
+  "version": "1.0.1",
+  "description": "cute & powerful ndjson log formatter for pino inspired by pino-colada",
   "main": "index.js",
   "bin": {
     "miami-vice": "./bin.js"
