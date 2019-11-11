@@ -91,7 +91,8 @@ function MiamiVice() {
             output.push(chalk.blueBright(`[${reqId}]`));
         }
 
-        output.push(formatMessage(extract(obj, 'message', 'msg'), level));
+        const msg = extract(obj, 'message', 'msg');
+        output.push(formatMessage(msg, level));
 
         /*const pid = */extract(obj, 'pid');
         /*const hostname = */extract(obj, 'hostname');
@@ -116,6 +117,7 @@ function MiamiVice() {
         if (responseTime != null) output.push(formatLoadTime(responseTime));
 
         let err = extract(obj, 'err', 'error');
+        let trace = extract(obj, 'trace', 'stack');
 
         if (level === 'fatal' || level === 'error' || level === 'warn') {
             const extra = Object.entries(flat(obj)).map(([key, value]) => `${key}: ${value}`).join(', ');
@@ -125,34 +127,67 @@ function MiamiVice() {
         let lines = [output.filter(noEmpty).join(' ')];
 
         if (err) {
-            let stack = err.stack;
-            delete err.stack;
+            trace = extract(err, 'trace', 'stack') || trace;
+            lines.push(...formatError(err, trace, msg));
+        }
 
-            let errLines = yaml.safeDump({err}, {skipInvalid: true}).split(/\r?\n/);
-            errLines[0] = `${emojiMark.error} Error:`;
-
-            errLines = errLines
-                .filter(errLine => errLine.trim())
-                .map(errLine => padLeft('', 9, ' ') + '| ' + errLine);
-
-            lines.push(...errLines);
-
-            if (stack) {
-                if (!(stack instanceof Array)) {
-                    stack = stack.split(/\r?\n/);
-                }
-                if (stack[0].startsWith('Error:')) {
-                    stack.shift();
-                }
-
-                stack.unshift(`${emojiMark.stack} Stack trace:`);
-                stack = stack.map(stackLine => padLeft('', 9, ' ') + '| ' + stackLine);
-
-                lines.push(...stack);
-            }
+        if (trace) {
+            lines.push(...formatTrace(trace, err));
         }
 
         return lines.filter(line => line.trim()).join(nl);
+    }
+
+    function formatError(err, trace, msg) {
+        trace = trace instanceof Array ? trace[0] : (trace || '');
+
+        const errNameMatch = trace.match(errorNameRegex);
+        let errName = 'Error';
+        if (errNameMatch) {
+            errName = errNameMatch[1];
+            if (errName === err.type) {
+                extract(err, 'type');
+            }
+        }
+
+        if (err.name === errName) {
+            extract(err, 'name');
+        }
+        if (msg && msg.includes(err.message)) {
+            extract(err, 'message');
+        }
+        if (msg && msg.includes(err.msg)) {
+            extract(err, 'msg');
+        }
+
+        let errLines = yaml.safeDump(err, {skipInvalid: true})
+            .split(/\r?\n/).map(errLine => '   ' + errLine);
+        errLines.unshift(`${emojiMark.error} ${errName}:`);
+
+        return errLines
+            .filter(errLine => errLine.trim())
+            .map(errLine => padLeft('', 9, ' ') + '|' + errLine);
+    }
+
+    function formatTrace(trace, err) {
+        if (!(trace instanceof Array)) {
+            trace = trace.toString().split(/\r?\n/);
+        }
+
+        let res = [];
+
+        const errNameMatch = trace[0].match(errorNameRegex);
+        if (!err) {
+            let errName = errNameMatch ? errNameMatch[1] : 'Error';
+            res.push(`${emojiMark.error} ${errName}:`);
+        }
+        if (errNameMatch) {
+            trace.shift();
+        }
+
+        res.push(`${emojiMark.stack} Stack trace:`);
+        res.push(...trace);
+        return res.map(stackLine => padLeft('', 9, ' ') + '|' + stackLine);
     }
 
     function formatDate(time) {
@@ -225,3 +260,5 @@ function MiamiVice() {
         return !!val
     }
 }
+
+const errorNameRegex = /^((\w*)(Error|Exception)):/;
