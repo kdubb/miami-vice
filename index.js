@@ -21,6 +21,10 @@ const emojiMark = {
     stack: '💥',
 };
 
+const indentMark = chalk.gray('|');
+
+const anynl = /\r?\n/;
+
 function isWideEmoji(character) {
     return character !== '⚠️'
 }
@@ -119,9 +123,18 @@ function MiamiVice() {
         let err = extract(obj, 'err', 'error');
         let trace = extract(obj, 'trace', 'stack');
 
-        if (level === 'fatal' || level === 'error' || level === 'warn') {
+        if (level !== 'info') {
             const extra = Object.entries(flat(obj)).map(([key, value]) => `${key}: ${value}`).join(', ');
-            output.push(chalk.gray(extra));
+            if (extra.length > 160) {
+                const extraLines = yaml.safeDump(obj, {skipInvalid: true})
+                    .split(anynl)
+                    .map(indent)
+                    .map((line) => chalk.gray(line));
+                output.push(...extraLines);
+            }
+            else {
+                output.push(chalk.gray(extra));
+            }
         }
 
         let lines = [output.filter(noEmpty).join(' ')];
@@ -161,17 +174,17 @@ function MiamiVice() {
         }
 
         let errLines = yaml.safeDump(err, {skipInvalid: true})
-            .split(/\r?\n/).map(errLine => '   ' + errLine);
+            .split(anynl).map(errLine => '   ' + errLine);
         errLines.unshift(`${emojiMark.error} ${errName}:`);
 
         return errLines
             .filter(errLine => errLine.trim())
-            .map(errLine => padLeft('', 9, ' ') + '|' + errLine);
+            .map(indent);
     }
 
     function formatTrace(trace, err) {
         if (!(trace instanceof Array)) {
-            trace = trace.toString().split(/\r?\n/);
+            trace = trace.toString().split(anynl);
         }
 
         let res = [];
@@ -187,7 +200,7 @@ function MiamiVice() {
 
         res.push(`${emojiMark.stack} Stack trace:`);
         res.push(...trace);
-        return res.map(stackLine => padLeft('', 9, ' ') + '|' + stackLine);
+        return res.map(indent);
     }
 
     function formatDate(time) {
@@ -222,7 +235,21 @@ function MiamiVice() {
         if (level === 'debug') pretty = chalk.yellow(msg);
         if (level === 'info' || level === 'userlvl') pretty = chalk.green(msg);
         if (level === 'fatal') pretty = chalk.white.bgRed(msg);
-        return pretty;
+
+        const lines = pretty.split(anynl);
+        if (lines.length === 1) {
+            return pretty;
+        }
+
+        return [lines[0], ...lines.slice(1).map(indentPlus)].join(nl);
+    }
+
+    function indent(line) {
+        return padLeft('', 9, ' ') + indentMark + line;
+    }
+
+    function indentPlus(line) {
+        return indent(' ' + line);
     }
 
     function formatUrl(url) {
