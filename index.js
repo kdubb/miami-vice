@@ -123,21 +123,23 @@ function MiamiVice() {
         let err = extract(obj, 'err', 'error');
         let trace = extract(obj, 'trace', 'stack');
 
+        let detailLines = [];
+
         if (level !== 'info') {
-            const extra = Object.entries(flat(obj)).map(([key, value]) => `${key}: ${value}`).join(', ');
-            if (extra.length > 160) {
-                const extraLines = yaml.safeDump(obj, {skipInvalid: true})
-                    .split(anynl)
-                    .map(indent)
-                    .map((line) => chalk.gray(line));
-                output.push(...extraLines);
+            const details = Object.entries(flat(obj)).map(([key, value]) => `${key}: ${value}`).join(', ');
+            if (details.length < 160) {
+                output.push(chalk.gray(details));
             }
             else {
-                output.push(chalk.gray(extra));
+                detailLines = yaml.safeDump(obj, {skipInvalid: true})
+                    .split(anynl)
+                    .filter(noEmpty)
+                    .map(indent)
+                    .map((line) => chalk.gray(line));
             }
         }
 
-        let lines = [output.filter(noEmpty).join(' ')];
+        let lines = [output.filter(noEmpty).join(' '), ...detailLines];
 
         if (err) {
             trace = extract(err, 'trace', 'stack') || trace;
