@@ -156,29 +156,30 @@ function MiamiVice() {
     function formatError(err, trace, msg) {
         trace = trace instanceof Array ? trace[0] : (trace || '');
 
+        const internalErr = Object.assign({}, err);
         const errNameMatch = trace.match(errorNameRegex);
         let errName = 'Error';
         if (errNameMatch) {
             errName = errNameMatch[1];
-            if (errName === err.type) {
-                extract(err, 'type');
+            if (errName === internalErr.type) {
+                extract(internalErr, 'type');
             }
         }
-
-        if (err.name === errName) {
-            extract(err, 'name');
+        
+        if (internalErr.name === errName) {
+            extract(internalErr, 'name');
         }
-        if (msg && msg.includes(err.message)) {
-            extract(err, 'message');
+        if (msg && msg.includes(internalErr.message)) {
+            extract(internalErr, 'message');
         }
-        if (msg && msg.includes(err.msg)) {
-            extract(err, 'msg');
+        if (msg && msg.includes(internalErr.msg)) {
+            extract(internalErr, 'msg');
         }
-
-        let errLines = yaml.safeDump(err, {skipInvalid: true})
+        
+        let errLines = yaml.safeDump(internalErr, {skipInvalid: true})
             .split(anynl).map(errLine => '   ' + errLine);
         errLines.unshift(`${emojiMark.error} ${errName}:`);
-
+        
         return errLines
             .filter(errLine => errLine.trim())
             .map(indent);
