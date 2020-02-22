@@ -1,11 +1,13 @@
 const prettyBytes = require('prettier-bytes');
 const jsonParse = require('fast-json-parse');
+const hasUnicode = require('has-unicode')();
 const prettyMs = require('pretty-ms');
 const padLeft = require('pad-left');
 const chalk = require('chalk');
 const flat = require('flat');
 const yaml = require('js-yaml');
-const nl = '\n';
+
+const nl = process.platform === 'win32' ? '\r\n' : '\n';
 
 const emojiLog = {
     fatal: '💀',
@@ -178,8 +180,8 @@ function MiamiVice() {
         
         const errLines = yaml.safeDump(err, { skipInvalid: true })
             .split(anynl).map(errLine => '   ' + errLine);
-        errLines.unshift(`${emojiMark.error} ${errName}:`);
-        
+        errLines.unshift(`${formatMark(emojiMark.error)} ${errName}:`);
+
         return errLines
             .filter(errLine => errLine.trim())
             .map(indent);
@@ -195,13 +197,13 @@ function MiamiVice() {
         const errNameMatch = trace[0].match(errorNameRegex);
         if (!err) {
             let errName = errNameMatch ? errNameMatch[1] : 'Error';
-            res.push(`${emojiMark.error} ${errName}:`);
+            res.push(`${formatMark(emojiMark.error)} ${errName}:`);
         }
         if (errNameMatch) {
             trace.shift();
         }
 
-        res.push(`${emojiMark.stack} Stack trace:`);
+        res.push(`${formatMark(emojiMark.stack)} Stack trace:`);
         res.push(...trace);
         return res.map(indent);
     }
@@ -216,9 +218,10 @@ function MiamiVice() {
     }
 
     function formatLevel(level) {
+        if (!hasUnicode) return level;
         const emoji = emojiLog[level];
         const padding = isWideEmoji(emoji) ? '' : ' ';
-        return emoji + padding
+        return emoji + padding;
     }
 
     function formatNs(name) {
@@ -284,6 +287,10 @@ function MiamiVice() {
         if (message === 'request' || message === 'incoming request') return '<--';
         if (message === 'response' || message === 'request completed') return '-->';
         return message
+    }
+
+    function formatMark(mark) {
+        return hasUnicode ? mark : '';
     }
 
     function noEmpty(val) {
