@@ -11,7 +11,7 @@ const emojiLog = {
     fatal: '💀',
     error: '🚨',
     warn: '⚠️',
-    info: '✨',
+    info: '🌴',
     debug: '🐛',
     trace: '🔍'
 };
