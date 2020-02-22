@@ -157,28 +157,29 @@ function MiamiVice() {
         trace = trace instanceof Array ? trace[0] : (trace || '');
 
         const errNameMatch = trace.match(errorNameRegex);
+        const internalErr = Object.assign({}, err);
         let errName = 'Error';
         if (errNameMatch) {
             errName = errNameMatch[1];
             if (errName === err.type) {
-                extract(err, 'type');
+                extract(internalErr, 'type');
             }
         }
-
+        
         if (err.name === errName) {
-            extract(err, 'name');
+            extract(internalErr, 'name');
         }
         if (msg && msg.includes(err.message)) {
-            extract(err, 'message');
+            extract(internalErr, 'message');
         }
         if (msg && msg.includes(err.msg)) {
-            extract(err, 'msg');
+            extract(internalErr, 'msg');
         }
-
-        let errLines = yaml.safeDump(err, {skipInvalid: true})
+        
+        const errLines = yaml.safeDump(err, { skipInvalid: true })
             .split(anynl).map(errLine => '   ' + errLine);
         errLines.unshift(`${emojiMark.error} ${errName}:`);
-
+        
         return errLines
             .filter(errLine => errLine.trim())
             .map(indent);
