@@ -26,7 +26,7 @@ const indentMark = chalk.gray('|');
 const anynl = /\r?\n/;
 
 function isWideEmoji(character) {
-    return character !== '⚠️'
+    return process.platform === 'linux' ? false : character !== '⚠️';
 }
 
 module.exports = MiamiVice;
