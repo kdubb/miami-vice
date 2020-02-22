@@ -144,6 +144,7 @@ function MiamiVice() {
         let lines = [output.filter(noEmpty).join(' '), ...detailLines];
 
         if (err) {
+            err = Object.assign({}, err);
             trace = extract(err, 'trace', 'stack') || trace;
             lines.push(...formatError(err, trace, msg));
         }
@@ -159,23 +160,22 @@ function MiamiVice() {
         trace = trace instanceof Array ? trace[0] : (trace || '');
 
         const errNameMatch = trace.match(errorNameRegex);
-        const internalErr = Object.assign({}, err);
         let errName = 'Error';
         if (errNameMatch) {
             errName = errNameMatch[1];
             if (errName === err.type) {
-                extract(internalErr, 'type');
+                extract(err, 'type');
             }
         }
         
         if (err.name === errName) {
-            extract(internalErr, 'name');
+            extract(err, 'name');
         }
         if (msg && msg.includes(err.message)) {
-            extract(internalErr, 'message');
+            extract(err, 'message');
         }
         if (msg && msg.includes(err.msg)) {
-            extract(internalErr, 'msg');
+            extract(err, 'msg');
         }
         
         const errLines = yaml.safeDump(err, { skipInvalid: true })
