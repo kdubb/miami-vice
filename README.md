@@ -28,7 +28,7 @@ const logger = pino({
 });
 ```
 
-## options (in process only)
+### options (in process only)
 ```javascript
 const pino = require('pino');
 const logger = pino({
