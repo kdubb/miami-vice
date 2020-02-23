@@ -35,16 +35,28 @@ module.exports = MiamiVice;
 
 
 /**
+ * In Process Options
  * @typedef {object} MiamiViceOptions
- * @property {boolean} checkEmojiWidth
+ * @property {boolean} [checkEmojiWidth] If falsy, a space will always be appended between the emoji and the message 
+ * (defaults to true)
+ */
+
+/**
+ * @type {MiamiViceOptions}
  */
 const defaultOptions = {
     checkEmojiWidth: true
 };
 
 /**
+ * [miami-vice](https://github.com/kdubb/miami-vice)
  * 
- * @param {MiamiViceOptions} options 
+ * A cute & powerful [ndjson](http://ndjson.org) formatter for [pino](https://github.com/pinojs/pino).
+ *
+ * Heavily inspired by [pino-colada](https://github.com/lrlna/pino-colada) with lots of error & debug formatting mixed in.
+ *
+ * For those of you wondering... a Miami Vice is half Piña Colada and half Strawberry Daiquiri 😉
+ * @param {MiamiViceOptions} [options] in-process options
  */
 function MiamiVice(options) {
     const opts = Object.assign({}, defaultOptions, options);
