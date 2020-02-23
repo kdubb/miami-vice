@@ -33,7 +33,22 @@ function isWideEmoji(character) {
 
 module.exports = MiamiVice;
 
-function MiamiVice() {
+
+/**
+ * @typedef {object} MiamiViceOptions
+ * @property {boolean} checkEmojiWidth
+ */
+const defaultOptions = {
+    checkEmojiWidth: true
+};
+
+/**
+ * 
+ * @param {MiamiViceOptions} options 
+ */
+function MiamiVice(options) {
+    const opts = Object.assign({}, defaultOptions, options);
+
     return parse;
 
     function parse(lineOrRecord) {
@@ -220,7 +235,7 @@ function MiamiVice() {
     function formatLevel(level) {
         if (!hasUnicode) return level;
         const emoji = emojiLog[level];
-        const padding = isWideEmoji(emoji) ? '' : ' ';
+        const padding = opts.checkEmojiWidth && isWideEmoji(emoji) ? '' : ' ';
         return emoji + padding;
     }
 

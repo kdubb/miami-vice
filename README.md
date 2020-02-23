@@ -28,6 +28,15 @@ const logger = pino({
 });
 ```
 
+## options (in process only)
+```javascript
+const pino = require('pino');
+const logger = pino({
+    prettyPrint: { checkEmojiWidth: false }, // setting to false might resolve icon spacing issues (defaults to true)
+    prettifier: require('miami-vice')
+});
+```
+
 
 ## miami-vice
 After parsing input from `server.js`, miami-vice returns a stream and pipes it
