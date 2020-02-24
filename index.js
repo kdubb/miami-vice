@@ -218,7 +218,7 @@ function MiamiVice() {
     }
 
     function formatLevel(level) {
-        if (!hasUnicode) return level;
+        if (!hasUnicode) return formatMessage(level, level);
         const emoji = emojiLog[level];
         const padding = isWideEmoji(emoji) ? '' : ' ';
         return emoji + padding;
