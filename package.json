@@ -17,7 +17,6 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "fast-json-parse": "^1.0.3",
-    "flat": "^5.0.0",
     "has-unicode": "^2.0.1",
     "js-yaml": "^3.13.1",
     "pad-left": "^2.1.0",

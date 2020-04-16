@@ -4,7 +4,6 @@ const hasUnicode = require('has-unicode')();
 const prettyMs = require('pretty-ms');
 const padLeft = require('pad-left');
 const chalk = require('chalk');
-const flat = require('flat');
 const yaml = require('js-yaml');
 
 const nl = process.platform === 'win32' ? '\r\n' : '\n';
@@ -128,7 +127,7 @@ function MiamiVice() {
         let detailLines = [];
 
         if (level !== 'info') {
-            const details = Object.entries(flat(obj)).map(([key, value]) => `${key}: ${value}`).join(', ');
+            const details = yaml.safeDump(obj, {skipInvalid: true, flowLevel: 0}).trimEnd();
             if (details.length < 160) {
                 output.push(chalk.gray(details));
             }
