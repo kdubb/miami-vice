@@ -96,7 +96,7 @@ function MiamiVice() {
             output.push(chalk.blueBright(`[${reqId}]`));
         }
 
-        const msg = extract(obj, 'message', 'msg');
+        const msg = extract(obj, 'message', 'msg') || '_';
         output.push(formatMessage(msg, level));
 
         /*const pid = */extract(obj, 'pid');
